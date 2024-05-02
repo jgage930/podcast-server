@@ -1,7 +1,12 @@
-def main():
-    print('hello')
+from fastapi import FastAPI
 
 
-if __name__ == "__main__":
-    main()
+app = FastAPI()
+
+
+@app.get('/')
+def index():
+    return {
+        'msg': 'podcast-server v0.0.1'
+    }
 
