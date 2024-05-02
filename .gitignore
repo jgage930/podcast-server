@@ -1,3 +1,7 @@
 __pycache__
 .env
 venv
+pyrightconfig.json
+database.db
+.idea
+.vscode
