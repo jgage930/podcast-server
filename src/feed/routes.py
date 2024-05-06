@@ -71,4 +71,15 @@ def create_feed(payload: FeedCreate, db: Session = Depends(get_db)):
 
 @feed_router.delete('/{id}')
 def delete_feed(id: int, db: Session = Depends(get_db)):
-    pass
+    db_feed = get_feed_by_id(id, db)
+
+    if db_feed:
+        db.delete(db_feed)
+        db.commit()
+
+        return {
+            'msg': f'deleted feed {id}'
+        }
+
+    raise HTTPException(status_code=404, detail='feed not found')
+
