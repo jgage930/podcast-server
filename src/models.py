@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 
 from .database import Base
 
@@ -10,3 +10,4 @@ class Feed(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     url = Column(String)
+    last_updated = Column(DateTime)
