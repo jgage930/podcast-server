@@ -47,6 +47,10 @@ func SetupDb(db *gorm.DB) {
 	db.AutoMigrate(&Feed{})
 }
 
+type Response struct {
+	Message string `json:"Message"`
+}
+
 type FeedHandler struct {
 	db *gorm.DB
 }
@@ -79,6 +83,13 @@ func (h *FeedHandler) CreateFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.db.Create(&feed)
+
+	response := Response{
+		Message: "Successfully Created Feed",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	log.Printf("Recieved feed %s", feed.Name)
+	json.NewEncoder(w).Encode(response)
 }
