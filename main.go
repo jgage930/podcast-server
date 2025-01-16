@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"io"
 	"log"
 	"net/http"
@@ -15,7 +17,10 @@ func main() {
 		w.Write([]byte("Podcast Server v0.0.1"))
 	})
 
-	router := feedRouter(&FeedHandler{})
+	db := Connect()
+	SetupDb(db)
+
+	router := feedRouter(&FeedHandler{db: db})
 
 	server := &http.Server{
 		Addr:    port,
@@ -23,6 +28,27 @@ func main() {
 	}
 
 	server.ListenAndServe()
+}
+
+func Connect() *gorm.DB {
+	db, err := gorm.Open(
+		sqlite.Open("data.db"),
+		&gorm.Config{},
+	)
+
+	if err != nil {
+		log.Fatal("Failed to establish a connection to the database.")
+	}
+
+	return db
+}
+
+func SetupDb(db *gorm.DB) {
+	db.AutoMigrate(&Feed{})
+}
+
+type FeedHandler struct {
+	db *gorm.DB
 }
 
 func feedRouter(h *FeedHandler) *http.ServeMux {
@@ -33,11 +59,11 @@ func feedRouter(h *FeedHandler) *http.ServeMux {
 }
 
 type Feed struct {
+	gorm.Model
+
 	Name string `json:"name"`
 	Url  string `json:"url"`
 }
-
-type FeedHandler struct{}
 
 func (h *FeedHandler) CreateFeed(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
