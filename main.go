@@ -20,11 +20,20 @@ func main() {
 	db := Connect()
 	SetupDb(db)
 
-	router := feedRouter(&FeedHandler{db: db})
+	feedMux := feedRouter(&FeedHandler{db: db})
+
+	otherMux := http.NewServeMux()
+	otherMux.HandleFunc("GET /other", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Called other endpoint"))
+	})
+
+	defaultMux := http.NewServeMux()
+	defaultMux.Handle("/feed", feedMux)
+	defaultMux.Handle("/other", otherMux)
 
 	server := &http.Server{
 		Addr:    port,
-		Handler: router,
+		Handler: defaultMux,
 	}
 
 	server.ListenAndServe()
