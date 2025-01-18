@@ -10,33 +10,30 @@ import (
 )
 
 func main() {
-	port := ":8080"
 	log.Printf("Starting Application.")
 
-	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Podcast Server v0.0.1"))
+	testMux := http.NewServeMux()
+	testMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Called GET /test"))
+	})
+	testMux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Called POST /test"))
 	})
 
-	db := Connect()
-	SetupDb(db)
-
-	feedMux := feedRouter(&FeedHandler{db: db})
-
-	otherMux := http.NewServeMux()
-	otherMux.HandleFunc("GET /other", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Called other endpoint"))
+	userMux := http.NewServeMux()
+	userMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Called GET /user"))
+	})
+	userMux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Called POST /user"))
 	})
 
-	defaultMux := http.NewServeMux()
-	defaultMux.Handle("/feed", http.StripPrefix("/feed", feedMux))
-	defaultMux.Handle("/other", otherMux)
+	topMux := http.NewServeMux()
+	topMux.Handle("/test", testMux)
+	topMux.Handle("/user", userMux)
 
-	server := &http.Server{
-		Addr:    port,
-		Handler: defaultMux,
-	}
-
-	server.ListenAndServe()
+	port := ":8080"
+	http.ListenAndServe(port, topMux)
 }
 
 func Connect() *gorm.DB {
