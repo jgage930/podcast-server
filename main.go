@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"io"
 	"log"
 	"net/http"
 )
@@ -12,31 +10,22 @@ import (
 func main() {
 	log.Printf("Starting Application.")
 
-	testMux := http.NewServeMux()
-	testMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Called GET /test"))
-	})
-	testMux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Called POST /test"))
-	})
+	db := Connect()
+	SetupDb(db)
 
-	userMux := http.NewServeMux()
-	userMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Called GET /user"))
-	})
-	userMux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Called POST /user"))
-	})
+	feedMux := feedRouter(&FeedHandler{db})
 
-	topMux := http.NewServeMux()
-	topMux.Handle("/test", testMux)
-	topMux.Handle("/user", userMux)
+	appMux := http.NewServeMux()
+	appMux.Handle("/feed", feedMux)
 
 	port := ":8080"
-	http.ListenAndServe(port, topMux)
+	log.Printf("Started app on 127.0.0.1%s", port)
+	http.ListenAndServe(port, appMux)
 }
 
 func Connect() *gorm.DB {
+	log.Printf("Connecting to Database...")
+
 	db, err := gorm.Open(
 		sqlite.Open("data.db"),
 		&gorm.Config{},
@@ -50,57 +39,11 @@ func Connect() *gorm.DB {
 }
 
 func SetupDb(db *gorm.DB) {
+	log.Printf("Migrating Database...")
+
 	db.AutoMigrate(&Feed{})
 }
 
 type Response struct {
 	Message string `json:"Message"`
-}
-
-type FeedHandler struct {
-	db *gorm.DB
-}
-
-func feedRouter(h *FeedHandler) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", h.CreateFeed)
-	mux.HandleFunc("POST /", h.CreateFeed)
-
-	return mux
-}
-
-type Feed struct {
-	gorm.Model
-
-	Name string `json:"name"`
-	Url  string `json:"url"`
-}
-
-func (h *FeedHandler) CreateFeed(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	var feed Feed
-	if err := json.Unmarshal(body, &feed); err != nil {
-		http.Error(w, "Failed to parse json Body", http.StatusBadRequest)
-		return
-	}
-
-	h.db.Create(&feed)
-
-	response := Response{
-		Message: "Successfully Created Feed",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
-func (h *FeedHandler) ListFeeds(w http.ResponseWriter, r *http.Request) {
-	log.Println("got endpoint")
 }
