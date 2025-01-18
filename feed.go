@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -53,5 +52,10 @@ func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FeedHandler) listFeeds(w http.ResponseWriter, r *http.Request) {
-	log.Println("got endpoint")
+	var feeds []Feed
+	h.db.Find(&feeds)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(feeds)
 }
