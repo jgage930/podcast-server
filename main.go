@@ -28,7 +28,7 @@ func main() {
 	})
 
 	defaultMux := http.NewServeMux()
-	defaultMux.Handle("/feed", feedMux)
+	defaultMux.Handle("/feed", http.StripPrefix("/feed", feedMux))
 	defaultMux.Handle("/other", otherMux)
 
 	server := &http.Server{
@@ -66,6 +66,7 @@ type FeedHandler struct {
 
 func feedRouter(h *FeedHandler) *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", h.CreateFeed)
 	mux.HandleFunc("POST /", h.CreateFeed)
 
 	return mux
@@ -101,4 +102,8 @@ func (h *FeedHandler) CreateFeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *FeedHandler) ListFeeds(w http.ResponseWriter, r *http.Request) {
+	log.Println("got endpoint")
 }
