@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -22,6 +23,7 @@ func feedRouter(h *FeedHandler) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", h.listFeeds)
 	mux.HandleFunc("POST /", h.createFeed)
+	mux.HandleFunc("GET /{id}", h.getFeedById)
 
 	return mux
 }
@@ -49,6 +51,18 @@ func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *FeedHandler) getFeedById(w http.ResponseWriter, r *http.Request) {
+	log.Println("got this route")
+
+	var feed Feed
+	// id := r.PathValue("id")
+	h.db.First(&feed)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(feed)
 }
 
 func (h *FeedHandler) listFeeds(w http.ResponseWriter, r *http.Request) {

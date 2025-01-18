@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 	feedMux := feedRouter(&FeedHandler{db})
 
 	appMux := http.NewServeMux()
-	appMux.Handle("/feed", feedMux)
+	appMux.Handle("/feed/", http.StripPrefix("/feed", feedMux))
 
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)
@@ -42,6 +43,14 @@ func SetupDb(db *gorm.DB) {
 	log.Printf("Migrating Database...")
 
 	db.AutoMigrate(&Feed{})
+}
+
+func ToString(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal("Cannot convert string to int!")
+	}
+	return i
 }
 
 type Response struct {
