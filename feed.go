@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -21,8 +22,8 @@ type Feed struct {
 func feedRouter(h *FeedHandler) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", h.listFeeds)
-	mux.HandleFunc("POST /", h.createFeed)
 	mux.HandleFunc("GET /{id}", h.getFeedById)
+	mux.HandleFunc("POST /", h.createFeed)
 
 	return mux
 }
@@ -55,7 +56,11 @@ func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
 func (h *FeedHandler) getFeedById(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	id := r.PathValue("id")
-	h.db.First(&feed, id)
+	err := h.db.First(&feed, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		http.Error(w, "Record Not Found", http.StatusNotFound)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
