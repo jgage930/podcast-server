@@ -24,6 +24,7 @@ func feedRouter(h *FeedHandler) *http.ServeMux {
 	mux.HandleFunc("GET /", h.listFeeds)
 	mux.HandleFunc("GET /{id}", h.getFeedById)
 	mux.HandleFunc("POST /", h.createFeed)
+	mux.HandleFunc("DELETE /{id}", h.deleteFeedById)
 
 	return mux
 }
@@ -74,4 +75,21 @@ func (h *FeedHandler) listFeeds(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(feeds)
+}
+
+func (h *FeedHandler) deleteFeedById(w http.ResponseWriter, r *http.Request) {
+	var feed Feed
+	id := r.PathValue("id")
+	err := h.db.First(&feed, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		http.Error(w, "Record Not Found", http.StatusNotFound)
+		return
+	}
+
+	h.db.Delete(&feed)
+
+	response := Response{Message: "Deleted Record"}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
