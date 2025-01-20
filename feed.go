@@ -57,11 +57,7 @@ func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
 func (h *FeedHandler) getFeedById(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	id := r.PathValue("id")
-	err := h.db.First(&feed, id).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		http.Error(w, "Record Not Found", http.StatusNotFound)
-		return
-	}
+	GetById(&feed, id, h.db, w)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
