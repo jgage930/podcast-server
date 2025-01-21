@@ -24,7 +24,7 @@ func main() {
 	feedHandler := FeedHandler{db: db}
 	FeedRouter(&feedHandler, server)
 
-	podcastHandler := PodcastHandler{}
+	podcastHandler := PodcastHandler{db: db}
 	PodcastRouter(&podcastHandler, server)
 
 	port := ":8080"
