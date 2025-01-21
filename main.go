@@ -21,6 +21,9 @@ func main() {
 
 	server := NewServer()
 
+	feedHandler := FeedHandler{db: db}
+	feedRouter(&feedHandler, server)
+
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)
 	http.ListenAndServe(port, server)

@@ -18,15 +18,11 @@ type Feed struct {
 	Url  string `json:"url"`
 }
 
-func feedRouter(h *FeedHandler) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", h.listFeeds)
-	mux.HandleFunc("POST /", h.createFeed)
-	mux.HandleFunc("POST /{id}/parse", h.getFeedById)
-	mux.HandleFunc("GET /{id}", h.getFeedById)
-	mux.HandleFunc("DELETE /{id}", h.deleteFeedById)
-
-	return mux
+func feedRouter(h *FeedHandler, mux *http.ServeMux) {
+	mux.HandleFunc("GET /feed/", h.listFeeds)
+	mux.HandleFunc("POST /feed/", h.createFeed)
+	mux.HandleFunc("GET /feed/{id}", h.getFeedById)
+	mux.HandleFunc("DELETE /feed/{id}", h.deleteFeedById)
 }
 
 func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
