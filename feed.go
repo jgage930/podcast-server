@@ -21,9 +21,9 @@ type Feed struct {
 func feedRouter(h *FeedHandler) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", h.listFeeds)
-	mux.HandleFunc("GET /{id}", h.getFeedById)
-	mux.HandleFunc("GET /{id}/parse", h.getFeedById)
 	mux.HandleFunc("POST /", h.createFeed)
+	mux.HandleFunc("POST /{id}/parse", h.getFeedById)
+	mux.HandleFunc("GET /{id}", h.getFeedById)
 	mux.HandleFunc("DELETE /{id}", h.deleteFeedById)
 
 	return mux
@@ -64,19 +64,12 @@ func (h *FeedHandler) getFeedById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(feed)
 }
 
-func (h *FeedHandler) listFeeds(w http.ResponseWriter, r *http.Request) {
-	var feeds []Feed
-	h.db.Find(&feeds)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(feeds)
-}
-
 func (h *FeedHandler) parseFeed(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	id := r.PathValue("id")
 	GetById(&feed, id, h.db, w)
+
+	ParseIntoPodcast(feed.Url)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
