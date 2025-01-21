@@ -23,3 +23,11 @@ func ReadBody[T Payload](buf *T, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Json Body", http.StatusUnprocessableEntity)
 	}
 }
+
+type JsonResponse interface{}
+
+func Respond[T JsonResponse](body T, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(body)
+}

@@ -8,15 +8,16 @@ import (
 )
 
 type Podcast struct {
+	Title string `json:"title"`
 }
 
-func parseIntoPodcast(url string) Podcast {
+func parseIntoPodcast(url string) gofeed.Feed {
 	parser := gofeed.NewParser()
 	feed, _ := parser.ParseURL(url)
 
 	log.Println(feed.Title)
 
-	return Podcast{}
+	return *feed
 }
 
 func PodcastRouter(h *PodcastHandler, mux *http.ServeMux) {
@@ -38,5 +39,6 @@ func (h *PodcastHandler) parseFeed(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	GetById(&feed, payload.FeedId, h.db, w)
 
-	parseIntoPodcast(feed.Url)
+	parsedFeed := parseIntoPodcast(feed.Url)
+	Respond(parsedFeed, w)
 }
