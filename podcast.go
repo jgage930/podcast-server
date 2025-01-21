@@ -19,15 +19,19 @@ func parseIntoPodcast(url string) Podcast {
 }
 
 func PodcastRouter(h *PodcastHandler, mux *http.ServeMux) {
-	mux.HandleFunc("POST /parse", nil)
+	mux.HandleFunc("POST /parse", h.parseFeed)
 }
 
 type PodcastHandler struct{}
 
 type ParseParameters struct {
-	FeedId string `json:feed_id`
+	FeedId string `json:"feed_id"`
 }
 
 func (*PodcastHandler) parseFeed(w http.ResponseWriter, r *http.Request) {
+	var payload ParseParameters
+	ReadBody(&payload, w, r)
 
+	log.Print(payload.FeedId)
+	log.Printf("called for id %s", payload.FeedId)
 }

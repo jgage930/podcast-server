@@ -22,7 +22,10 @@ func main() {
 	server := NewServer()
 
 	feedHandler := FeedHandler{db: db}
-	feedRouter(&feedHandler, server)
+	FeedRouter(&feedHandler, server)
+
+	podcastHandler := PodcastHandler{}
+	PodcastRouter(&podcastHandler, server)
 
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)
