@@ -18,7 +18,7 @@ type Feed struct {
 	Url  string `json:"url"`
 }
 
-func feedRouter(h *FeedHandler, mux *http.ServeMux) {
+func FeedRouter(h *FeedHandler, mux *http.ServeMux) {
 	mux.HandleFunc("GET /feed/", h.listFeeds)
 	mux.HandleFunc("POST /feed/", h.createFeed)
 	mux.HandleFunc("GET /feed/{id}", h.getFeedById)
