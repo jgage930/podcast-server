@@ -32,6 +32,4 @@ func (*PodcastHandler) parseFeed(w http.ResponseWriter, r *http.Request) {
 	var payload ParseParameters
 	ReadBody(&payload, w, r)
 
-	log.Print(payload.FeedId)
-	log.Printf("called for id %s", payload.FeedId)
 }
