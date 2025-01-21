@@ -8,20 +8,22 @@ import (
 	"strconv"
 )
 
+func NewServer() *http.ServeMux {
+	mux := http.NewServeMux()
+	return mux
+}
+
 func main() {
 	log.Printf("Starting Application.")
 
 	db := Connect()
 	SetupDb(db)
 
-	feedMux := feedRouter(&FeedHandler{db})
-
-	appMux := http.NewServeMux()
-	appMux.Handle("/feed/", http.StripPrefix("/feed", feedMux))
+	server := NewServer()
 
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)
-	http.ListenAndServe(port, appMux)
+	http.ListenAndServe(port, server)
 }
 
 func Connect() *gorm.DB {
