@@ -10,6 +10,7 @@ import (
 )
 
 func NewServer() *http.ServeMux {
+	log.Println("Creating Server Mux")
 	mux := http.NewServeMux()
 	return mux
 }
