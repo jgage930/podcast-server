@@ -55,6 +55,7 @@ func SetupDb(db *gorm.DB) {
 	log.Printf("Migrating Database...")
 
 	db.AutoMigrate(&Feed{})
+	db.AutoMigrate(&filestore.Task{})
 }
 
 func ToString(s string) int {
