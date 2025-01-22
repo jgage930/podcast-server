@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"podcast-server/filestore"
 	"strconv"
 )
 
@@ -26,6 +27,9 @@ func main() {
 
 	podcastHandler := PodcastHandler{db: db}
 	PodcastRouter(&podcastHandler, server)
+
+	taskHandler := filestore.NewTaskHandler(db)
+	filestore.TaskRouter(&taskHandler, server)
 
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)

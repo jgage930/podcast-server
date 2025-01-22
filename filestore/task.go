@@ -35,6 +35,13 @@ type TaskHandler struct {
 	queue Queue
 }
 
+func NewTaskHandler(db *gorm.DB) TaskHandler {
+	return TaskHandler{
+		db:    db,
+		queue: NewQueue(),
+	}
+}
+
 func TaskRouter(h *TaskHandler, mux *http.ServeMux) {
 	//mux.HandleFunc("GET /task/", nil)
 	mux.HandleFunc("POST /task/push", h.pushTask)
