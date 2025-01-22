@@ -1,6 +1,8 @@
 package filestore
 
 import (
+	"net/http"
+
 	"gorm.io/gorm"
 )
 
@@ -24,4 +26,18 @@ type Task struct {
 type TaskHandler struct {
 	db    *gorm.DB
 	queue Queue
+}
+
+func TaskRouter(h *TaskHandler, mux *http.ServeMux) {
+	mux.HandleFunc("GET /task/", nil)
+	mux.HandleFunc("POST /task/push", nil)
+	mux.HandleFunc("GET /task/status/{}", nil)
+}
+
+type TaskCreate struct {
+	Url    string     `json:"url"`
+	Status TaskStatus `json:"status"`
+}
+
+func (h *TaskHandler) pushTask(w http.ResponseWriter, r *http.Request) {
 }
