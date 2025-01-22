@@ -22,5 +22,6 @@ type Task struct {
 }
 
 type TaskHandler struct {
-	db *gorm.DB
+	db    *gorm.DB
+	queue Queue
 }
