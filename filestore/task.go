@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"net/http"
+	"podcast-server/common"
 
 	"gorm.io/gorm"
 )
@@ -18,9 +19,15 @@ const (
 type Task struct {
 	gorm.Model
 
-	ID     uint       `gorm:"primaryKey" json:"id"`
 	Url    string     `json:"url"`
 	Status TaskStatus `json:"status"`
+}
+
+func NewTask(url string) Task {
+	return Task{
+		Url:    url,
+		Status: "Queued",
+	}
 }
 
 type TaskHandler struct {
@@ -29,15 +36,23 @@ type TaskHandler struct {
 }
 
 func TaskRouter(h *TaskHandler, mux *http.ServeMux) {
-	mux.HandleFunc("GET /task/", nil)
-	mux.HandleFunc("POST /task/push", nil)
-	mux.HandleFunc("GET /task/status/{}", nil)
+	//mux.HandleFunc("GET /task/", nil)
+	mux.HandleFunc("POST /task/push", h.pushTask)
+	//mux.HandleFunc("GET /task/status/{}", nil)
 }
 
 type TaskCreate struct {
-	Url    string     `json:"url"`
-	Status TaskStatus `json:"status"`
+	Url string `json:"url"`
 }
 
 func (h *TaskHandler) pushTask(w http.ResponseWriter, r *http.Request) {
+	var payload TaskCreate
+	common.ReadBody(&payload, w, r)
+
+	task := NewTask(payload.Url)
+	h.db.Create(&task)
+
+	h.queue.Push(task)
+
+	common.Respond(task, w)
 }
