@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
+	"podcast-server/common"
 )
 
 type FeedHandler struct {
@@ -53,7 +54,7 @@ func (h *FeedHandler) createFeed(w http.ResponseWriter, r *http.Request) {
 func (h *FeedHandler) getFeedById(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	id := r.PathValue("id")
-	GetById(&feed, id, h.db, w)
+	common.GetById(&feed, id, h.db, w)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -72,7 +73,7 @@ func (h *FeedHandler) listFeeds(w http.ResponseWriter, r *http.Request) {
 func (h *FeedHandler) deleteFeedById(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 	id := r.PathValue("id")
-	GetById(&feed, id, h.db, w)
+	common.GetById(&feed, id, h.db, w)
 
 	h.db.Delete(&feed)
 

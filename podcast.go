@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"podcast-server/common"
 )
 
 type Podcast struct {
@@ -34,11 +35,11 @@ type ParseParameters struct {
 
 func (h *PodcastHandler) parseFeed(w http.ResponseWriter, r *http.Request) {
 	var payload ParseParameters
-	ReadBody(&payload, w, r)
+	common.ReadBody(&payload, w, r)
 
 	var feed Feed
-	GetById(&feed, payload.FeedId, h.db, w)
+	common.GetById(&feed, payload.FeedId, h.db, w)
 
 	parsedFeed := parseIntoPodcast(feed.Url)
-	Respond(parsedFeed, w)
+	common.Respond(parsedFeed, w)
 }
