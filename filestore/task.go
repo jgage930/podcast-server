@@ -43,13 +43,19 @@ func NewTaskHandler(db *gorm.DB) TaskHandler {
 }
 
 func TaskRouter(h *TaskHandler, mux *http.ServeMux) {
-	//mux.HandleFunc("GET /task/", nil)
+	mux.HandleFunc("GET /task/", h.listTasks)
 	mux.HandleFunc("POST /task/push", h.pushTask)
 	//mux.HandleFunc("GET /task/status/{}", nil)
 }
 
 type TaskCreate struct {
 	Url string `json:"url"`
+}
+
+func (h *TaskHandler) listTasks(w http.ResponseWriter, r *http.Request) {
+	var tasks []Task
+	h.db.Find(&tasks)
+	common.Respond(tasks, w)
 }
 
 func (h *TaskHandler) pushTask(w http.ResponseWriter, r *http.Request) {
