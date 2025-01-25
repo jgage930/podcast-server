@@ -21,20 +21,25 @@ func main() {
 	db := Connect()
 	SetupDb(db)
 
-	server := NewServer()
+	// Create New Server
+	router := http.NewServeMux()
 
+	// Add routes
 	feedHandler := FeedHandler{db: db}
-	FeedRouter(&feedHandler, server)
+	FeedRouter(&feedHandler, router)
 
 	podcastHandler := PodcastHandler{db: db}
-	PodcastRouter(&podcastHandler, server)
+	PodcastRouter(&podcastHandler, router)
 
 	taskHandler := filestore.NewTaskHandler(db)
-	filestore.TaskRouter(&taskHandler, server)
+	filestore.TaskRouter(&taskHandler, router)
+
+	// Set up top level middleware
+	configured := LoggingMiddleware(router)
 
 	port := ":8080"
 	log.Printf("Started app on 127.0.0.1%s", port)
-	http.ListenAndServe(port, server)
+	http.ListenAndServe(port, configured)
 }
 
 func Connect() *gorm.DB {
