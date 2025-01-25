@@ -82,5 +82,5 @@ func (h *TaskHandler) pushTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) downloadTasks(w http.ResponseWriter, r *http.Request) {
-	RunQueue(h)
+	RunQueue(&h.queue)
 }

@@ -11,25 +11,26 @@ import (
 
 // Download everything that has been pushed into the queue.
 // Download everything syncrhonously for now.
-func RunQueue(handler *TaskHandler) {
-	if handler.queue.IsEmpty() {
+func RunQueue(queue *Queue) {
+	if queue.IsEmpty() {
 		log.Println("Nothing to download, queue is empty!")
 		return
 	}
 
 	log.Printf("Downloading From Queue...")
 
-	var failures []Task
-	for !handler.queue.IsEmpty() {
-		task := handler.queue.Pop()
+	// var failures []Task
+	for !queue.IsEmpty() {
+		task := queue.Pop()
 
 		// Call url
 		r, err := http.Get(task.Url)
 		if err != nil {
 			log.Printf("Failed to download %s", task.Url)
+			continue
 
-			task.Status = "Failed"
-			failures = append(failures, task)
+			// task.Status = "Failed"
+			// failures = append(failures, task)
 		}
 
 		// Read body
@@ -37,9 +38,10 @@ func RunQueue(handler *TaskHandler) {
 		defer r.Body.Close()
 		if err != nil {
 			log.Printf("Failed to read body for %s", task.Url)
+			continue
 
-			task.Status = "Failed"
-			failures = append(failures, task)
+			// task.Status = "Failed"
+			// failures = append(failures, task)
 		}
 
 		// Write to file
@@ -49,17 +51,19 @@ func RunQueue(handler *TaskHandler) {
 		file, err := os.Create(file_name)
 		if err != nil {
 			log.Printf("Failed to create file for %s", task.Url)
+			continue
 
-			task.Status = "Failed"
-			failures = append(failures, task)
+			// task.Status = "Failed"
+			// failures = append(failures, task)
 		}
 
 		n, err := file.Write(body)
 		if err != nil {
 			log.Printf("Failed to write to file for %s", task.Url)
+			continue
 
-			task.Status = "Failed"
-			failures = append(failures, task)
+			// task.Status = "Failed"
+			// failures = append(failures, task)
 		}
 
 		log.Printf("Wrote %d bytes \n", n)
