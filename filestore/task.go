@@ -1,6 +1,7 @@
 package filestore
 
 import (
+	"log"
 	"net/http"
 	"podcast-server/common"
 
@@ -36,9 +37,18 @@ type TaskHandler struct {
 }
 
 func NewTaskHandler(db *gorm.DB) TaskHandler {
+	// Fetch queued tasks from database.
+	var tasks []Task
+	db.Find(&tasks)
+
+	queue := NewQueue()
+	queue.store = append(queue.store, tasks...)
+
+	log.Printf("Starting with %d tasks", len(queue.store))
+
 	return TaskHandler{
 		db:    db,
-		queue: NewQueue(),
+		queue: queue,
 	}
 }
 
