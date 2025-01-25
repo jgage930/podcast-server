@@ -45,6 +45,7 @@ func NewTaskHandler(db *gorm.DB) TaskHandler {
 func TaskRouter(h *TaskHandler, mux *http.ServeMux) {
 	mux.HandleFunc("GET /task/", h.listTasks)
 	mux.HandleFunc("POST /task/push", h.pushTask)
+	mux.HandleFunc("POST /task/download", h.pushTask)
 	//mux.HandleFunc("GET /task/status/{}", nil)
 }
 
@@ -68,4 +69,8 @@ func (h *TaskHandler) pushTask(w http.ResponseWriter, r *http.Request) {
 	h.queue.Push(task)
 
 	common.Respond(task, w)
+}
+
+func (h *TaskHandler) downloadTasks(w http.ResponseWriter, r *http.Request) {
+
 }
